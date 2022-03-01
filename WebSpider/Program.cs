@@ -40,24 +40,34 @@ namespace WebSpider
 
         private static string FetchWebPage(string url, string searchTerm)
         {
-            using (WebClient web = new WebClient()) {
+            using (WebClient web = new WebClient())
+            {
                 Console.WriteLine($"Downloading {url}");
                 string html = web.DownloadString(url);
 
-                foreach(Match m in Regex.Matches(html, @"\b" + searchTerm + @"\b", RegexOptions.IgnoreCase))
+                foreach (Match m in Regex.Matches(html, @"\b" + searchTerm + @"\b", RegexOptions.IgnoreCase))
                 {
                     Console.WriteLine($"{searchTerm} found from {url}");
                 }
-                
-                //Console.WriteLine(html);
+
+                // 4) Extract all links from the web page
+                List<string> links = new List<string>();
+
+                foreach(Match m in Regex.Matches(html, "<a href=\"(http.*?)\""))
+                {
+                    links.Add(m.Groups[1].Value);
+                }
+
+                // 5) repeat the process until we find the search term
+                foreach(string link in links)
+                {
+                    string found = FetchWebPage(link, searchTerm);
+                    if(found != "")
+                    {
+                        return found;
+                    }
+                }
             }
-            // 4) Extract all links from the web page
-            List<string> links = new List<string>();
-
-            Regex.Matches(html, "<a href=\"(http.*?)\"");
-
-            // 5) repeat the process until we find the search term
-
             return "";
         }
     }
